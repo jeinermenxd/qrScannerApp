@@ -1,0 +1,27 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Product Details</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" *ngIf="producto">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>{{ producto.nombre }}</ion-card-title>
+      <ion-card-subtitle>{{ producto.categoria }}</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <img [src]="producto.imagenes[0]" alt="{{ producto.nombre }}" />
+      <p>{{ producto.descripcion }}</p>
+      <p><strong>Price:</strong> {{ producto.precio | currency }}</p>
+      <p><strong>Stock:</strong> {{ producto.stock }}</p>
+      <p><strong>Estado:</strong> {{ producto.estado }}</p>
+      <div *ngIf="producto.oferta">
+        <p><strong>Discount:</strong> {{ producto.descuento }}%</p>
+      </div>
+      <div *ngFor="let key of objectKeys(producto.caracteristicas)">
+        <p><strong>{{ key }}:</strong> {{ producto.caracteristicas[key] }}</p>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

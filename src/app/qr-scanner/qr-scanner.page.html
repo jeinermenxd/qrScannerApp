@@ -1,0 +1,13 @@
+<div id="container" style="text-align: center; padding: 20px;">
+  <ion-button (click)="toggleScanner()">
+    {{ isScannerActive ? 'Stop Scanner' : 'Start Scanner' }}
+  </ion-button>
+  
+  <zxing-scanner *ngIf="isScannerActive"
+    (scanSuccess)="handleQrCodeResult($event)">
+  </zxing-scanner>
+  
+  <div *ngIf="scannedResult">
+    <p>Scanned Result: {{ scannedResult }}</p>
+  </div>
+</div>
