@@ -14,8 +14,8 @@ import { ProductoService } from '../service/producto/producto.service';
   imports: [IonCardContent, IonCardSubtitle, IonCardTitle, IonCardHeader, IonCard, IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
 })
 export class ProductDetailPage implements OnInit {
-
   producto: Producto | null = null;
+  errorMessage: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -23,11 +23,18 @@ export class ProductDetailPage implements OnInit {
   ) {}
 
   ngOnInit() {
-    const codUnico  = this.route.snapshot.paramMap.get('codUnico');
-    if (codUnico ) {
-      this.productoService.getProductoByCodUnico(codUnico ).subscribe((producto) => {
-        this.producto = producto;
-      });
+    const codUnico = this.route.snapshot.paramMap.get('codUnico');
+    if (codUnico) {
+      this.productoService.getProductoByCodUnico(codUnico).subscribe(
+        (producto) => {
+          this.producto = producto;
+          this.errorMessage = null;
+        },
+        (error) => {
+          this.errorMessage = error;
+          this.producto = null;
+        }
+      );
     }
   }
 

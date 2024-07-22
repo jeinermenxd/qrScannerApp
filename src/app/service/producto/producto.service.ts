@@ -1,6 +1,6 @@
 import { EventEmitter, Injectable, Output } from '@angular/core';
 import { API_URL } from '../conexion-api/api';
-import { BehaviorSubject, Observable, Subject, tap } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, Subject, tap, throwError } from 'rxjs';
 import { Producto } from 'src/app/models/producto.interface';
 import { HttpClient } from '@angular/common/http';
 
@@ -8,71 +8,70 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class ProductoService {
- /* Un emisor de eventos que se utiliza para emitir un evento al componente principal. */
- @Output() disparadorProducto: EventEmitter<any> = new EventEmitter();
+  @Output() disparadorProducto: EventEmitter<any> = new EventEmitter();
+  private url = API_URL + 'productos';
+  private _refresh$ = new Subject<void>();
+  private enviarUpdate = new BehaviorSubject<any>(''); 
+  datos$ = this.enviarUpdate.asObservable(); 
 
- /* Una variable que se utiliza para almacenar la URL de la API. */
- private url = API_URL + 'productos';
+  constructor(private http: HttpClient) { }
 
- /* Un Sujeto que se usa para emitir un evento al componente principal. */
- private _refresh$ = new Subject<void>();
+  enviarDatos(datos: Producto) {
+    this.enviarUpdate.next(datos);
+  }
 
- private enviarUpdate = new BehaviorSubject<any>(''); 
- datos$ = this.enviarUpdate.asObservable(); 
- enviarDatos(datos: Producto ) {
+  getProductos(): Observable<Producto[]> {
+    return this.http.get<Producto[]>(this.url).pipe(
+      catchError(this.handleError)
+    );
+  }
 
-   this.enviarUpdate.next(datos);
- }
+  getProducto(id: string): Observable<Producto> {
+    return this.http.get<Producto>(`${this.url}/${id}`).pipe(
+      catchError(this.handleError)
+    );
+  }
 
- constructor(private http: HttpClient) { }
+  getProductoByCodUnico(codUnico: string): Observable<Producto> {
+    return this.http.get<Producto>(`${this.url}/codigo/${codUnico}`).pipe(
+      catchError(this.handleError)
+    );
+  }
 
- /* Una función que devuelve los datos de la API. */
- getProductos(): Observable<Producto[]> {
-   return this.http.get<Producto[]>(this.url);
- }
+  addProducto(producto: Producto): Observable<any> {
+    return this.http.post(this.url, producto)
+      .pipe(
+        tap(() => {
+          this._refresh$.next();
+        }),
+        catchError(this.handleError)
+      );
+  }
 
- /* Una función que devuelve los datos de la API. */
- getProducto(id: string): Observable<Producto> {
-   return this.http.get<Producto>(this.url + id);
- }
- getProductoByCodUnico(codUnico: string): Observable<Producto> {
-  return this.http.get<Producto>(this.url +"/"+ codUnico);
-}
+  deleteProducto(id: string): Observable<any> {
+    return this.http.delete(`${this.url}/${id}`).pipe(
+      catchError(this.handleError)
+    );
+  }
 
- /* Una función que agrega un nuevo producto a la base de datos. */
- addProducto(producto: Producto): Observable<any> {
-   return this.http.post(this.url, producto)
-     .pipe(
-       tap(() => {
-         this._refresh$.next();
-       })
-     );
- }
+  editProducto(id: string, producto: Producto): Observable<any> {
+    return this.http.put(`${this.url}/${id}`, producto)
+      .pipe(
+        tap(() => {
+          this._refresh$.next();
+        }),
+        catchError(this.handleError)
+      );
+  }
 
- /* Eliminación de un producto de la base de datos. */
- deleteProducto(id: string): Observable<any> {
-   return this.http.delete(this.url +"/" + id);
- }
+  private handleError(error: any): Observable<never> {
+    console.error('An error occurred:', error); // Log to console for debugging
+    return throwError('Something went wrong; please try again later.');
+  }
 
- /* Una función que actualiza los datos en la base de datos. */
- editProducto(id: string, producto: Producto): Observable<any> {
-   return this.http.put(this.url +"/" + id, producto)
-     .pipe(
-       tap(() => {
-         this._refresh$.next();
-       })
-     );
- }
-
- // Refrescar tablas //
-
- /**
-  * La función refresh$ devuelve el valor de la variable privada _refresh$.
-  * @returns El observable que se devuelve es el que se crea en el constructor.
-  */
- get refresh$() {
-   return this._refresh$;
- }
+  get refresh$() {
+    return this._refresh$;
+  }
 }
 
 /* Es una declaración de depuración. */

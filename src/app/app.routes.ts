@@ -15,7 +15,11 @@ export const routes: Routes = [
     loadComponent: () => import('./qr-scanner/qr-scanner.page').then( m => m.QrScannerPage)
   },
   {
-    path: 'product-detail/:id',
+    path: 'product-detail/:codUnico',
     loadComponent: () => import('./product-detail/product-detail.page').then( m => m.ProductDetailPage)
+  },
+  {
+    path: 'product-list',
+    loadComponent: () => import('./product-list/product-list.page').then( m => m.ProductListPage)
   },
 ];

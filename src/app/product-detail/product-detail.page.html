@@ -4,8 +4,12 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" *ngIf="producto">
-  <ion-card>
+<ion-content [fullscreen]="true">
+  <div *ngIf="errorMessage" style="text-align: center; color: red; padding: 20px;">
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <ion-card *ngIf="producto">
     <ion-card-header>
       <ion-card-title>{{ producto.nombre }}</ion-card-title>
       <ion-card-subtitle>{{ producto.categoria }}</ion-card-subtitle>
